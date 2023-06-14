@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatMsg</title>
+    <style>
+        p {
+            margin: 0px;
+            font-size: x-large;
+        }
+
+        #kuang div {
+            border: 3px solid #c7ff44;
+        }
+
+        #kuang p {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        #kuang span:first-child {
+            background-color: deepskyblue;
+        }
+
+        #kuang span {
+            background-color: orange;
+        }
+
+        input {
+            width: 99%;
+            font-size: xx-large;
+            border: none;
+            resize: none;
+        }
+
+        button {
+            width: 100%;
+            /* height: 28%; */
+            background-color: gainsboro;
+            font-size: x-large;
+        }
+    </style>
+</head>
+
+<body>
+    <center style="text-align:center">
+        <h1>ChatMsg<a href="/logout/" style="right: 25%;position: absolute;">登出</a></h1>
+        
+        <div id="kuang" style="border: 3px solid #000000;height: 400px;width: 70%;">
+            <div>
+                <p><span>{{myuser}}</span><span>加入</span> </p>
+            </div>
+        </div>
+        <div style="border: 3px solid #24e7bd;width: 70%;">
+            <input id="msssg"></input>
+            <button onclick="upmsgs()">发送</button>
+        </div>
+    </center>
+</body>
+<script>
+    var chatkuang = document.getElementById("kuang")
+    if ('EventSource' in window) {
+        var url = "//" + window.location.hostname + ":8000/getnewmsg/";
+        var source = new EventSource(url);
+        source.onmessage = function (event) {
+            var data = event.data;
+            data = JSON.parse(data);
+            data = "<div><p><span>" + data["crtime"] + "</span><span>" + data["foruser"] + "</span><span>:</span>" + data["msgs"] + "</p></div>"
+            chatkuang.innerHTML += data;
+        };
+    } else {
+        alert("此浏览器不支持 SSE")
+    }
+    function upmsgs() {
+        if(document.getElementById("msssg").value==""){
+            return;
+        }
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST","/putnewmsg/",true);
+        xhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xhttp.send("msgs="+document.getElementById("msssg").value);
+        document.getElementById("msssg").value="";
+    } 
+</script>
+
+</html>
